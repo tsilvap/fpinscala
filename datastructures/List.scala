@@ -175,42 +175,35 @@ object List {
 
   // Exercise 3.22
   def add(as: List[Int], bs: List[Int]): List[Int] =
-    as match {
-      case Nil => Nil
-      case Cons(ha, ta) => bs match {
-        case Nil => Nil
-        case Cons(hb, tb) => Cons(ha+hb, add(ta,tb))
-      }
+    (as, bs) match {
+      case (Nil, _) => Nil
+      case (_, Nil) => Nil
+      case (Cons(ha,ta), Cons(hb,tb)) => Cons(ha+hb, add(ta,tb))
     }
 
   // Exercise 3.23
   def zipWith[A,B,C](as: List[A], bs: List[B])(f: (A,B) => C): List[C] =
-    as match {
-      case Nil => Nil
-      case Cons(ha, ta) => bs match {
-        case Nil => Nil
-        case Cons(hb, tb) => Cons(f(ha,hb), zipWith(ta,tb)(f))
-      }
+    (as, bs) match {
+      case (Nil, _) => Nil
+      case (_, Nil) => Nil
+      case (Cons(ha,ta), Cons(hb,tb)) => Cons(f(ha,hb), zipWith(ta,tb)(f))
     }
 
   // Exercise 3.24
-  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
-    def startsWith[A](sup: List[A], sub: List[A]): Boolean =
-      sup match {
-        case Nil => sub == Nil
-        case Cons(hsup, tsup) => sub match {
-          case Nil => true
-          case Cons(hsub, tsub) => (hsup == hsub) && startsWith(tsup, tsub)
-        }
-      }
-
-    sub match {
-      case Nil => true
-      case Cons(hsub, tsub) => sup match {
-        case Nil => false
-        case Cons(hsup, tsup) =>
-          startsWith(sup, sub) || hasSubsequence(tsup, sub)
-      }
+  @annotation.tailrec
+  def startsWith[A](sup: List[A], sub: List[A]): Boolean =
+    (sup, sub) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(hsup,tsup), Cons(hsub,tsub)) =>
+        (hsup == hsub) && startsWith(tsup,tsub)
     }
-  }
+  @annotation.tailrec
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
+    (sup, sub) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(hsup,tsup), Cons(hsub,tsub)) =>
+        startsWith(sup,sub) || hasSubsequence(tsup,sub)
+    }
 }
