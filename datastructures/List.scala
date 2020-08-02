@@ -146,4 +146,71 @@ object List {
   // Exercise 3.15
   def flatten[A](ll: List[List[A]]): List[A] =
     foldRight(ll, Nil: List[A])(append2)
+
+  // Exercise 3.16
+  def add1(ns: List[Int]): List[Int] =
+    foldRight(ns, Nil: List[Int])((n, acc) => Cons(n+1, acc))
+
+  // Exercise 3.17
+  def doubleToString(l: List[Double]): List[String] =
+    foldRight(l, Nil: List[String])((d, acc) => Cons(d.toString, acc))
+
+  // Exercise 3.18
+  def map[A,B](as: List[A])(f: A => B): List[B] =
+    foldRight(as: List[A], Nil: List[B])((a, acc) => Cons(f(a), acc))
+
+  // Exercise 3.19
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as: List[A], Nil: List[A])(
+      (a, acc) => if (f(a)) Cons(a, acc) else acc
+    )
+
+  // Exercise 3.20
+  def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] =
+    flatten(map(as)(f))
+
+  // Exercise 3.21
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] =
+    flatMap(as)(a => if (f(a)) List(a) else Nil)
+
+  // Exercise 3.22
+  def add(as: List[Int], bs: List[Int]): List[Int] =
+    as match {
+      case Nil => Nil
+      case Cons(ha, ta) => bs match {
+        case Nil => Nil
+        case Cons(hb, tb) => Cons(ha+hb, add(ta,tb))
+      }
+    }
+
+  // Exercise 3.23
+  def zipWith[A,B,C](as: List[A], bs: List[B])(f: (A,B) => C): List[C] =
+    as match {
+      case Nil => Nil
+      case Cons(ha, ta) => bs match {
+        case Nil => Nil
+        case Cons(hb, tb) => Cons(f(ha,hb), zipWith(ta,tb)(f))
+      }
+    }
+
+  // Exercise 3.24
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+    def startsWith[A](sup: List[A], sub: List[A]): Boolean =
+      sup match {
+        case Nil => sub == Nil
+        case Cons(hsup, tsup) => sub match {
+          case Nil => true
+          case Cons(hsub, tsub) => (hsup == hsub) && startsWith(tsup, tsub)
+        }
+      }
+
+    sub match {
+      case Nil => true
+      case Cons(hsub, tsub) => sup match {
+        case Nil => false
+        case Cons(hsup, tsup) =>
+          startsWith(sup, sub) || hasSubsequence(tsup, sub)
+      }
+    }
+  }
 }
